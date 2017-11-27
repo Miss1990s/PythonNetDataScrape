@@ -4,6 +4,7 @@ __author__ = 'Bai Chenjia'
 from selenium import webdriver
 import re
 import codecs
+import time
 
 # 对爬虫爬取到的数据进行处理
 def handel(content):
@@ -59,6 +60,39 @@ def handel(content):
         return "\n"
 
 
+def findScoreClass(content,fp):
+    try:
+        content.find_element_by_class_name("score_2")
+        fp.write("score 2")
+    except Exception,e:  
+        print Exception,":",unicode(e)
+        print '\n'
+        try:
+            content.find_element_by_class_name("score_4")
+            fp.write("score 4")
+            print "score 4"
+        except Exception,e:  
+            print Exception,":",unicode(e)
+            print '\n'
+            try:
+                content.find_element_by_class_name("score_6")
+                fp.write("score 6")
+                print "score 6"
+            except Exception,e:  
+                print Exception,":",unicode(e)
+                print '\n'
+                try:
+                    content.find_element_by_class_name("score_8")
+                    fp.write("score 8")
+                    print "score 8"
+                except Exception,e:  
+                    print Exception,":",unicode(e)
+                    print '\n'
+                    fp.write("No Score")
+                    print "no score"
+    finally:
+        fp.write('\n')
+
 def Crawler(url):
     driver = webdriver.PhantomJS()
     driver.set_window_size(1120, 550)
@@ -68,15 +102,19 @@ def Crawler(url):
     #抓取第一页的数据
     contents = driver.find_elements_by_class_name("comment")  # 根据class抓取数据
     for content in contents:
+
         handel_data = handel(content.text)   # 调用处理函数返回一个list
         if handel_data == "\n":  # 如果为空
             continue
         else:
             fp.write("-----------------------------------------------------\n")
+            print "-----------------------------------------------------\n"
             for temp in handel_data:
-                #print "temp22", temp, type(temp)
+                print temp
+                print '\n'
                 fp.write(temp)
                 fp.write('\n')
+            findScoreClass(content,fp)
     print u"进入第 1 页"
     page = 1
     #抓取第二页到尾页的数据
@@ -101,8 +139,10 @@ def Crawler(url):
         else:
             page += 1
             print u"进入第 " + str(page) + u" 页"
+            time.sleep(8)
             contents = driver.find_elements_by_class_name("comment")
             for content in contents:
+
                 try:
                     handel_data = handel(content.text)   # 调用处理函数
                 except:
@@ -112,10 +152,13 @@ def Crawler(url):
                         continue
                     else:
                         fp.write(str(page)+"-----------------------------------------------------\n")
+                        print "-----------------------------------------------------\n"
                         for temp in handel_data:
-                            #print "temp22", temp, type(temp)
+                            print temp
+                            print '\n'
                             fp.write(temp)
                             fp.write('\n')
+                        findScoreClass(content,fp)
     fp.close()
     driver.quit()
 
